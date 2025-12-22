@@ -29,6 +29,9 @@ public class UrlEntity {
         private boolean anonymous;
 
         @Column(nullable = false)
+        private Long clickCount;
+
+        @Column(nullable = false)
         private LocalDateTime createdAt;
 
         protected UrlEntity() {}
@@ -38,6 +41,10 @@ public class UrlEntity {
                 this.originalUrl = originalUrl;
                 this.anonymous = anonymous;
                 this.createdAt = LocalDateTime.now();
+                this.clickCount = 0L;
         }
 
+        public void incrementClicks(long value){
+                this.clickCount += value;
+        }
 }
