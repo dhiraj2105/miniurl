@@ -12,12 +12,15 @@ public class UrlShortenerService {
 
     private final UrlRepository urlRepository;
     private final AnonymousLimitService anonymousLimitService;
+    private final UrlCacheService urlCacheService;
 
     public UrlShortenerService(
             UrlRepository urlRepository,
-            AnonymousLimitService anonymousLimitService) {
+            AnonymousLimitService anonymousLimitService,
+            UrlCacheService urlCacheService) {
         this.urlRepository = urlRepository;
         this.anonymousLimitService = anonymousLimitService;
+        this.urlCacheService = urlCacheService;
     }
 
     public String shortenUrl(String originalUrl, String anonKey) {
@@ -35,6 +38,7 @@ public class UrlShortenerService {
                 new UrlEntity(shortCode, originalUrl, true);
 
         urlRepository.save(entity);
+        urlCacheService.cacheUrl(shortCode, originalUrl);
         anonymousLimitService.markAsCreated(anonKey, shortCode);
 
         return shortCode;
@@ -42,8 +46,20 @@ public class UrlShortenerService {
 
     public String getOriginalUrl(String shortCode) {
 
+//        Try redis first
+        String cachedUrl = urlCacheService.getCachedUrl(shortCode);
+        if (cachedUrl != null) {
+            urlCacheService.incrementClickCount(shortCode);
+            return cachedUrl;
+        }
+
+//        Fallback to DB
         UrlEntity entity = urlRepository.findByShortCode(shortCode)
                 .orElseThrow(() -> new ShortUrlNotFoundException(shortCode));
+
+//        Cache it for future
+        urlCacheService.cacheUrl(shortCode, entity.getOriginalUrl());
+        urlCacheService.incrementClickCount(shortCode);
 
         return entity.getOriginalUrl();
     }
