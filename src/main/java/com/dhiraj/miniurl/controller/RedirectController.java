@@ -11,6 +11,7 @@ import java.net.URI;
 
 @RestController
 public class RedirectController {
+
     private final UrlShortenerService urlShortenerService;
 
     public RedirectController(UrlShortenerService urlShortenerService) {
@@ -21,10 +22,6 @@ public class RedirectController {
     public ResponseEntity<Void> redirect(@PathVariable String shortCode) {
 
         String originalUrl = urlShortenerService.getOriginalUrl(shortCode);
-
-        if (originalUrl == null) {
-            return ResponseEntity.notFound().build();
-        }
 
         return ResponseEntity
                 .status(HttpStatus.FOUND)
