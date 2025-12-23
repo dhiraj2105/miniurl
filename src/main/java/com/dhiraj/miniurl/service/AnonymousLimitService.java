@@ -9,8 +9,6 @@ import java.time.Duration;
 
 @Service
 public class AnonymousLimitService {
-    private static final Logger logger = LoggerFactory.getLogger(AnonymousLimitService.class);
-
     private static final String PREFIX = "anon:";
     private static final Duration TTL = Duration.ofHours(24);
 

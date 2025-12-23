@@ -77,4 +77,52 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(response);
     }
+
+
+//    AUTH custom
+@ExceptionHandler(EmailAlreadyExistsException.class)
+public ResponseEntity<ErrorResponse> handleEmailAlreadyExists(
+        EmailAlreadyExistsException ex) {
+
+    ErrorResponse response = new ErrorResponse(
+            HttpStatus.CONFLICT.value(),
+            "EMAIL_ALREADY_EXISTS",
+            ex.getMessage()
+    );
+
+    return ResponseEntity
+            .status(HttpStatus.CONFLICT)
+            .body(response);
+}
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidCredentials(
+            InvalidCredentialsException ex) {
+
+        ErrorResponse response = new ErrorResponse(
+                HttpStatus.UNAUTHORIZED.value(),
+                "INVALID_CREDENTIALS",
+                ex.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(response);
+    }
+
+    @ExceptionHandler(JwtGenerationException.class)
+    public ResponseEntity<ErrorResponse> handleJwtGeneration(
+            JwtGenerationException ex) {
+
+        ErrorResponse response = new ErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "JWT_GENERATION_FAILED",
+                ex.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(response);
+    }
+
 }
