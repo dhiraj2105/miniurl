@@ -10,7 +10,8 @@ import java.time.LocalDateTime;
 @Table(
         name = "urls",
         indexes = {
-                @Index(name = "idx_short_code", columnList = "shortCode", unique = true)
+                @Index(name = "idx_short_code", columnList = "shortCode", unique = true),
+                @Index(name = "idx_user_id", columnList = "user_id")
         }
 )
 public class UrlEntity {
@@ -25,8 +26,13 @@ public class UrlEntity {
         @Column(nullable = false, columnDefinition = "TEXT")
         private String originalUrl;
 
-        @Column(nullable = false)
-        private boolean anonymous;
+        /**
+         * NULL  -> anonymous URL
+         * NOT NULL -> registered user URL
+         */
+        @ManyToOne(fetch = FetchType.LAZY)
+        @JoinColumn(name = "user_id")
+        private UserEntity user;
 
         @Column(nullable = false)
         private Long clickCount;
@@ -36,15 +42,25 @@ public class UrlEntity {
 
         protected UrlEntity() {}
 
-        public UrlEntity(String shortCode, String originalUrl, boolean anonymous) {
+        // Anonymous URL
+        public UrlEntity(String shortCode, String originalUrl) {
                 this.shortCode = shortCode;
                 this.originalUrl = originalUrl;
-                this.anonymous = anonymous;
+                this.user = null;
                 this.createdAt = LocalDateTime.now();
                 this.clickCount = 0L;
         }
 
-        public void incrementClicks(long value){
+        // Registered user URL
+        public UrlEntity(String shortCode, String originalUrl, UserEntity user) {
+                this.shortCode = shortCode;
+                this.originalUrl = originalUrl;
+                this.user = user;
+                this.createdAt = LocalDateTime.now();
+                this.clickCount = 0L;
+        }
+
+        public void incrementClicks(long value) {
                 this.clickCount += value;
         }
 }

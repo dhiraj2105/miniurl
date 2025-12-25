@@ -3,6 +3,7 @@ package com.dhiraj.miniurl.service;
 import com.dhiraj.miniurl.exception.AnonymousLimitReachedException;
 import com.dhiraj.miniurl.exception.ShortUrlNotFoundException;
 import com.dhiraj.miniurl.model.UrlEntity;
+import com.dhiraj.miniurl.model.UserEntity;
 import com.dhiraj.miniurl.repository.UrlRepository;
 import com.dhiraj.miniurl.util.ShortCodeGenerator;
 import org.springframework.stereotype.Service;
@@ -23,10 +24,14 @@ public class UrlShortenerService {
         this.urlCacheService = urlCacheService;
     }
 
-    public String shortenUrl(String originalUrl, String anonKey) {
+    public String shortenUrl(String originalUrl,
+                             String anonKey,
+                             UserEntity user) {
 
-        if (anonymousLimitService.hasAlreadyCreated(anonKey)) {
-            throw new AnonymousLimitReachedException();
+        if (user == null) {
+            if (anonymousLimitService.hasAlreadyCreated(anonKey)) {
+                throw new AnonymousLimitReachedException();
+            }
         }
 
         String shortCode;
@@ -34,15 +39,20 @@ public class UrlShortenerService {
             shortCode = ShortCodeGenerator.generate();
         } while (urlRepository.existsByShortCode(shortCode));
 
-        UrlEntity entity =
-                new UrlEntity(shortCode, originalUrl, true);
+        UrlEntity entity = (user == null)
+                ? new UrlEntity(shortCode, originalUrl)
+                : new UrlEntity(shortCode, originalUrl, user);
 
         urlRepository.save(entity);
         urlCacheService.cacheUrl(shortCode, originalUrl);
-        anonymousLimitService.markAsCreated(anonKey, shortCode);
+
+        if (user == null) {
+            anonymousLimitService.markAsCreated(anonKey, shortCode);
+        }
 
         return shortCode;
     }
+
 
     public String getOriginalUrl(String shortCode) {
 
