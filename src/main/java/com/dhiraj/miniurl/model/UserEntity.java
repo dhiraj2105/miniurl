@@ -5,24 +5,25 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
+@Getter
 @Entity
 @Table(name = "users")
 public class UserEntity {
 
-    @Getter
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Getter
+
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Getter
+
     @Column(nullable = false)
     private String password;
 
-    @Getter
+
     @Column(nullable = false)
     private String plan;
 
