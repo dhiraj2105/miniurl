@@ -21,9 +21,9 @@ public class ClickSyncService {
     }
 
     /**
-     * Runs every 5 minutes
+     * Runs every 1 minutes
      */
-    @Scheduled(fixedRate = 300_000)
+    @Scheduled(fixedRate = 60_000)
     public void syncClickCounts() {
 
         Set<String> keys = redisTemplate.keys("click:*");
