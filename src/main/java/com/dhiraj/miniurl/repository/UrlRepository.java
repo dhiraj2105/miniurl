@@ -17,4 +17,6 @@ public interface UrlRepository extends JpaRepository<UrlEntity, Long> {
     List<UrlEntity> findAllBy(UserEntity user);
 
     List<UrlEntity> findAllByUser_Id(Long userId);
+
+    Optional<UrlEntity> findByIdAndUser_Id(Long id, Long userId);
 }

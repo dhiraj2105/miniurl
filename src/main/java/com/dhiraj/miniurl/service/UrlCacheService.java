@@ -43,4 +43,9 @@ public class UrlCacheService {
     private String buildClickKey(String shortCode) {
         return "click:" + shortCode;
     }
+
+    public void evictUrl(String shortCode) {
+        redisTemplate.delete("url:" + shortCode);
+        redisTemplate.delete("click:" + shortCode);
+    }
 }
