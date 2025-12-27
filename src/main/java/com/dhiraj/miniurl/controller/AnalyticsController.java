@@ -26,6 +26,7 @@ public class AnalyticsController {
                 .orElseThrow(() -> new ShortUrlNotFoundException(shortCode));
 
         return new UrlAnalyticsResponse(
+                entity.getId(),
                 entity.getShortCode(),
                 entity.getOriginalUrl(),
                 entity.getClickCount(),
