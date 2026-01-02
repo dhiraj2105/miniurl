@@ -36,7 +36,7 @@ public class UserUrlController {
                 .orElseThrow();
 
         return ResponseEntity.ok(
-                urlRepository.findAllByUser_Id(user.getId())
+                urlRepository.findAllByUser_IdOrderByCreatedAtDesc(user.getId())
                         .stream()
                         .map(url -> new UrlResponse(
                                 url.getId(),
