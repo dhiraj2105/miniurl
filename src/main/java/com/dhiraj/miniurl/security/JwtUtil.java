@@ -4,6 +4,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -12,12 +13,15 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    private static final String SECRET = "my-super-secret-key-my-super-secret-key-my-super-secret-key-123456";
-    private static final long EXPIRATION = 86400000; // 1 day
+    private final SecretKey SECRET;
+    private final long EXPIRATION;
 
-
-    private SecretKey secretKey(){
-        return Keys.hmacShaKeyFor(SECRET.getBytes());
+    public JwtUtil(
+            @Value("${app.jwt.secret}") String SECRET,
+            @Value("${app.jwt.expiration}") long EXPIRATION
+    ) {
+        this.SECRET = Keys.hmacShaKeyFor(SECRET.getBytes());
+        this.EXPIRATION = EXPIRATION;
     }
 
     public String generateToken(String email) {
@@ -25,13 +29,13 @@ public class JwtUtil {
                 .setSubject(email)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
-                .signWith(secretKey(),SignatureAlgorithm.HS256)
+                .signWith(SECRET,SignatureAlgorithm.HS256)
                 .compact();
     }
 
     public String extractEmail(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(secretKey()).build()
+                .setSigningKey(SECRET).build()
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
